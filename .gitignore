@@ -27,4 +27,3 @@ mlruns/
 src/graphmb/unused/*
 src/graphmb/__pycache__/
 *.log
-

@@ -174,7 +174,9 @@ class AssemblyDataset:
         print("assembly average length (Mb): {} max: {} min: {}".format(round(np.mean(self.node_lengths)/1000000, 3),
                                                                    round(np.max(self.node_lengths)/1000000, 3),
                                                                    round(np.min(self.node_lengths)/1000000, 3)))
-        print("coverage samples: {}".format(len(self.node_depths[0])))
+        if isinstance(self.node_depths[0], float):
+            self.node_depths[0] = np.array([self.node_depths[0]], dtype=float)
+        print("coverage samples: {}".format((self.node_depths[0])))
         if os.path.exists(os.path.join(self.data_dir, self.graphfile)) or \
             len(self.edges_src) > 0:
             print("Graph file found and read")
@@ -492,7 +494,7 @@ class AssemblyDataset:
             else:
                 self.node_depths = stats.zscore(self.node_depths, axis=0)
         else:
-            self.node_depths = np.ones(len(self.node_names), dtype=np.float)
+            self.node_depths = np.ones(len(self.node_names), dtype=float)
 
     def read_labels(self):
         # logging.info("loading labels from {}".format(args.labels))
@@ -663,6 +665,7 @@ class AssemblyDataset:
         for i in range(len(self.node_names)):
             self.topk_neighbors.append(set(np.argsort(cosine_dists[i])[-k:]))
         self.logger.info("got top {} neighbors".format(k))
+        return self.topk_neighbors
 
     def estimate_n_genomes(self):
         self.scg_counts = {}
@@ -763,13 +766,14 @@ class AssemblyDataset:
             marker_counts = get_markers_to_contigs(self.ref_marker_sets, contig_markers)
             self.markers = marker_counts
 
-    def get_edges_with_same_scgs(self):
+    def get_edges_with_same_scgs(self,overlap_range =0,verbose=False):
         """Check every edge to see if nodes have SCGs in common
 
         :return: edges IDs (edges_src, edges_dst, edge_weight)
         :rtype: list
         """
         edge_ids_with_same_scgs = []
+        node_pairs = []
         scg_counter = Counter()
         for x, (i, j) in enumerate(zip(self.edges_src, self.edges_dst)):
             if self.node_names[i] in self.contig_markers and self.node_names[j] in self.contig_markers and \
@@ -777,12 +781,14 @@ class AssemblyDataset:
             
                 overlap = len(self.contig_markers[self.node_names[i]].keys() & \
                     self.contig_markers[self.node_names[j]].keys())
-                if overlap > 0 and i != j:
+                if overlap > overlap_range and i != j:
                     #remove edge
                     scg_counter[overlap] += 1
                     edge_ids_with_same_scgs.append(x)
-        print("edges with overlapping scgs (max=20):", scg_counter.most_common(20))
-        return edge_ids_with_same_scgs
+                    node_pairs.append((f'edge_{i}', f'edge_{j}'))
+        if verbose == True:
+            print("edges with overlapping scgs (max=20):", scg_counter.most_common(20))
+        return edge_ids_with_same_scgs, node_pairs
 
     def generate_edges_based_on_labels(self, noise=0):
         # link nodes with same labels and create new adj_matrix/edges_src/edges_dst/edge_weights

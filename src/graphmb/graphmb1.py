@@ -4,12 +4,15 @@ import os
 import networkx as nx
 import numpy as np
 import operator
-
+import pandas as pd
 #import tensorflow
-
+import re
+import itertools
+import random
 from graphmb.evaluate import read_contig_genes, read_marker_gene_sets, evaluate_contig_sets
-from graphmb.contigsdataset import get_kmer_to_id, count_kmers
+from graphmb.contigsdataset import get_kmer_to_id, count_kmers,AssemblyDataset
 from graphmb.utils import SEED
+
 # import torch
 
 def open_gfa_file(filename, filter=1000, root=False, kmer=4):
@@ -47,8 +50,9 @@ def open_gfa_file(filename, filter=1000, root=False, kmer=4):
     return G
 
 
-def cluster_embs(node_embeddings, node_ids, clusteringalgo, kclusters, device="cpu", node_lens=None, seed=0):
+def cluster_embs(node_embeddings, node_ids, clusteringalgo, kclusters, device="cpu", node_lens=None, seed=0,dataset=None,args=None):
     #set_seed(seed)
+    print(clusteringalgo)
     if clusteringalgo == "vamb":
         from vamb.cluster import cluster as vamb_cluster
         it = vamb_cluster(
@@ -99,10 +103,7 @@ def cluster_embs(node_embeddings, node_ids, clusteringalgo, kclusters, device="c
             ).fit(node_embeddings)
             cluster_labels = cluster_model.predict(node_embeddings)
             cluster_centroids = cluster_model.means_
-        elif clusteringalgo == "kmeansconst":
-            cluster_labels = KMeansConstrained(
-                n_clusters=kclusters, size_min=1, size_max=5, random_state=SEED
-            ).fit_predict(node_embeddings)
+
         elif clusteringalgo == "kmeansbatch":
             kmeans = MiniBatchKMeans(n_clusters=kclusters, random_state=SEED, batch_size=100, init=seed_matrix)
             cluster_labels = kmeans.fit_predict(node_embeddings)
@@ -116,6 +117,85 @@ def cluster_embs(node_embeddings, node_ids, clusteringalgo, kclusters, device="c
         elif clusteringalgo == "optics":
             cluster_labels = OPTICS(min_samples=5, cluster_method="xi", n_jobs=-1).fit_predict(node_embeddings)
             cluster_centroids = None
+        elif clusteringalgo== "restricted_kmeans":
+            from active_semi_clustering.semi_supervised.pairwise_constraints import PCKMeans
+            k= args.usek
+
+            number_pairs = []
+
+            all_pairs = list(itertools.combinations(node_ids, 2))
+            num_pairs_to_sample =  args.clpairs - len(number_pairs) 
+            if num_pairs_to_sample > 0 :
+                number_pairs+=(random.sample(all_pairs, num_pairs_to_sample))
+            cl_pairs = []
+
+            for pair in number_pairs:
+                numbers = re.findall(r'\d+', pair[0]) + re.findall(r'\d+', pair[1])
+                cl_pairs.append(tuple(map(int, numbers)))  # Convert to int
+
+            clusterer = PCKMeans(n_clusters=kclusters)
+
+            clusterer.fit(node_embeddings, ml=[], cl=cl_pairs)
+            cluster_labels = clusterer.labels_
+            cluster_centroids = None
+
+
+        elif clusteringalgo == "graphconstrained":
+            from graphmb.chameleon_cluster.chameleon import cluster_constrained
+            chameleon_mode= args.chameleon_mode
+       
+            cl_pairs = []
+            ml_pairs = []
+
+            if chameleon_mode == 1 or chameleon_mode == 3: # CL with just SCG  / CL with SCG + RSampling
+                _, edges_with_same_scgs = dataset.get_edges_with_same_scgs(verbose=False)
+                cl_pairs+=(edges_with_same_scgs)
+            if chameleon_mode == 2 or chameleon_mode == 3: #  CL with RSampling/ CL with SCG + RSampling
+                all_pairs = list(itertools.combinations(node_ids, 2))
+                num_pairs_to_sample =  args.clpairs - len(cl_pairs) # setting the amount of wanted cl pairs
+       
+                if num_pairs_to_sample > 0 :
+                    cl_pairs+=(random.sample(all_pairs, num_pairs_to_sample))
+            if chameleon_mode == 4:
+                #Generating ML constraints with kmeans
+
+                clustering = KMeans(n_clusters=kclusters, random_state=SEED)
+                cluster_labels = clustering.fit_predict(node_embeddings)
+                cluster_to_contig = {i: [] for i in range(kclusters)}
+                for il, l in enumerate(cluster_labels):
+                    cluster_to_contig[l].append(node_ids[il])
+
+                results = evaluate_contig_sets(dataset.ref_marker_sets, dataset.contig_markers, cluster_to_contig)
+                for binid in results:
+                    if results[binid]["comp"] > 90 and results[binid]["cont"] < 5:
+                        contigs = cluster_to_contig[binid]
+                        num_pairs_to_sample =  args.clpairs - len(cl_pairs) # setting the amount of wanted cl pairs
+                        if num_pairs_to_sample > 0 :
+                            cl_pairs+= list(itertools.combinations(contigs, 2))
+
+
+            k= args.usek
+    
+
+            if k != 0 : # use top k neighbours to define    ml constraints
+                topK= dataset.get_topk_neighbors(k=k)
+                for i, j in enumerate(topK):
+                    j= list(j)
+                    for f in range (0,k):
+                        ml_pairs.append((i+1, j[f]))
+
+            cluster_labels= cluster_constrained(
+                df= pd.DataFrame(node_embeddings),
+                node_ids=node_ids,
+                lambda_cl=args.lambdacl,
+                eta_ml=args.etaml,
+                cl_pairs=cl_pairs,
+                ml_pairs=ml_pairs,
+                k= kclusters, 
+                knn=100, 
+                m=int(kclusters*1.2), 
+                )
+            cluster_centroids = None
         else:
             print("invalid clustering algorithm")
             return None
@@ -123,8 +203,7 @@ def cluster_embs(node_embeddings, node_ids, clusteringalgo, kclusters, device="c
         # for each cluster, get majority label, and then P/R
         cluster_to_contig = {i: [] for i in range(kclusters)}
         for il, l in enumerate(cluster_labels):
-            # if l not in cluster_to_contig:
-            #    cluster_to_contig[l] = []
+ 
             cluster_to_contig[l].append(node_ids[il])
 
     return cluster_to_contig, cluster_centroids

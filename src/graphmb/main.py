@@ -1,5 +1,5 @@
-
 import logging
+import time
 from datetime import datetime
 from collections import Counter
 import numpy as np
@@ -10,7 +10,6 @@ import pickle
 import shutil
 import pdb
 import networkx as nx
-
 from pathlib import Path
 from graphmb.arg_options import create_parser
 from graphmb.evaluate import (
@@ -21,23 +20,28 @@ from graphmb.contigsdataset import AssemblyDataset
 from graphmb.visualize import draw_nx_graph, run_tsne, plot_embs
 from graphmb.utils import set_seed, get_cluster_mask
 from graphmb.graphmb1 import (cluster_embs,
-    evaluate_binning,
-    calculate_bin_metrics,
-    )
+                              evaluate_binning,
+                              calculate_bin_metrics,
+                              )
 
 from graphmb.version import __version__
 
+
 def run_model(dataset, args, logger, nrun, target_metric):
+    # This method runs with the goal of  training and outputting a model to perform the autoencoder part
+    # returns the best_embs, scores, cluster_labels
     if args.model_name.endswith("_ccvae"):
         from graphmb import train_ccvae
         return train_ccvae.run_model_ccvae(dataset, args, logger, nrun, target_metric)
     # TODO: this should be equivalent to running ccvae with both alpha params set to 0
-    #elif args.model_name == "vae":
+    # elif args.model_name == "vae":
     #    from graphmb import train_vae
+    #    return train_vae.run_model_vae(dataset, args, logger, nrun)
     #    return train_vae.run_model_vae(dataset, args, logger, nrun)
     elif args.model_name in ("gcn", "sage", "gat"):
         from graphmb import train_gnn
         return train_gnn.run_model_gnn(dataset, args, logger, nrun, target_metric)
+
 
 def draw(dataset, node_to_label, label_to_node, cluster_to_contig, outname, graph=None):
     # properties of all nodes
@@ -83,6 +87,7 @@ def write_embs(embs, node_names, outname):
     with open(outname, "wb") as f:
         pickle.dump(embs_dict, f)
 
+
 def write_edges(graph, outname):
     with open(outname, "w") as graphf:
         for e in zip(graph.edges()[0], graph.edges()[1]):
@@ -111,7 +116,7 @@ def check_dirs(args, use_features=True):
             exit()
         if not os.path.exists(os.path.join(args.assembly, args.depth)):
             print(f"Depth file {args.depth} not found, check --depth option, not using depths")
-            #exit()
+            # exit()
 
 
 def get_activation(args):
@@ -150,9 +155,9 @@ def run_graphmb(dataset, args, device, logger):
     cluster_mask = get_cluster_mask(args.quick, dataset.assembly)
     logging.info(model)
     if (
-        dataset.assembly.ref_marker_sets is not None
-        and args.clusteringalgo is not None
-        and not args.skip_preclustering
+            dataset.assembly.ref_marker_sets is not None
+            and args.clusteringalgo is not None
+            and not args.skip_preclustering
     ):
         # cluster using only input features
         logger.info("pre train clustering:")
@@ -227,7 +232,6 @@ def write_bins(args, dataset, cluster_to_contig, logger):
     left_over = set(dataset.node_names) - clustered_contigs - short_contigs
     for c in left_over:
         if c not in clustered_contigs and len(dataset.node_seqs[c]) > args.minbin:
-
             with open(bin_dir / f"{single_clusters}.fna", "w") as binfile:
                 binfile.write(">" + c + "\n")
                 binfile.write(dataset.node_seqs[c] + "\n")
@@ -237,6 +241,9 @@ def write_bins(args, dataset, cluster_to_contig, logger):
 
 
 def run_post_processing(final_embs, args, logger, dataset, device, label_to_node, node_to_label, seed):
+    # This is where the clustering happens
+    # final embs contains the embeddings
+
     metrics = {}
     if "cluster" in args.post or "kmeans" in args.post:
         logger.info("#### clustering embs with {} ({})".format(args.clusteringalgo, args.kclusters))
@@ -250,14 +257,17 @@ def run_post_processing(final_embs, args, logger, dataset, device, label_to_node
             final_embs = final_embs.numpy()
 
             # last_train_embs should already be detached and on cpu
+            # THe full clustering process is happening here
         best_cluster_to_contig, best_centroids = cluster_embs(
-            final_embs,
+            final_embs,  # Node Embeddings
             dataset.node_names,
             args.clusteringalgo,
             # len(dataset.connected),
             args.kclusters,
             device=device,
             seed=seed,
+            dataset=dataset,
+            args=args
         )
         cluster_sizes = {}
         for c in best_cluster_to_contig:
@@ -268,6 +278,8 @@ def run_post_processing(final_embs, args, logger, dataset, device, label_to_node
             for contig in best_cluster_to_contig[bin]:
                 best_contig_to_bin[contig] = bin
         # run for best epoch only
+
+        # ----- EVALUATE BIN QUALITY ------
         if args.markers is not None:
             total_hq = 0
             total_mq = 0
@@ -287,8 +299,8 @@ def run_post_processing(final_embs, args, logger, dataset, device, label_to_node
                     total_mq += 1
             logger.info("#### Total HQ {} ####".format(total_hq))
             logger.info("#### Total MQ {} ####".format(total_mq))
-            metrics["hq_bins"] = total_hq
-            metrics["mq_bins"] = total_mq
+            metrics["hq"] = total_hq
+            metrics["mq"] = total_mq
         contig_lens = {dataset.node_names[i]: dataset.node_lengths[i] for i in range(len(dataset.node_names))}
         if len(dataset.labels) > 1:
             evaluate_binning(best_cluster_to_contig, node_to_label, label_to_node, contig_sizes=contig_lens)
@@ -355,6 +367,7 @@ def run_post_processing(final_embs, args, logger, dataset, device, label_to_node
         # write_embs(best_train_embs, dataset.node_names, os.path.join(args.outdir, f"{args.outname}_last_embs.pickle"))
     return metrics
 
+
 def main():
     parser = create_parser()
     args = parser.parse_args()
@@ -364,7 +377,8 @@ def main():
         exit(0)
     if not args.read_cache:
         check_dirs(args)
-    # set up logging
+    # ------Set up logging--------
+
     now = datetime.now()
     logger = logging.getLogger(__name__)
     loglevel = getattr(logging, args.loglevel.upper())
@@ -388,28 +402,32 @@ def main():
 
     sys.excepthook = handle_exception
 
-    # setup tensorflow
+    # ------- Setup tensorflow -------
+
     if args.model_name != "sage_lstm":
         if "torch" in sys.modules:
             sys.modules.pop('torch')
         os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # FATAL
         import tensorflow as tf
-        #tf.get_logger().setLevel(logging.INFO)
-        clustering_device = "cpu" # avoid tf vs torch issues
+        # tf.get_logger().setLevel(logging.INFO)
+        clustering_device = "cpu"  # avoid tf vs torch issues
         logging.getLogger("tensorflow").setLevel(logging.INFO)
         if not args.cuda:
             tf.config.set_visible_devices([], "GPU")
 
     logger.info(f"Running GraphMB {__version__}")
     logger.debug(args)
-    # setup cuda and cpu
+
+    # ----- Setup cuda and cpu ------
+
     logger.info("using cuda: {}".format(str(args.cuda)))
     device = "cuda:0" if args.cuda else "cpu"
     clustering_device = "cuda:0" if args.cuda else "cpu"
     logger.info("setting seed to {}".format(args.seed))
     set_seed(args.seed)
     use_graph = os.path.exists(os.path.join(args.assembly, args.graph_file)) or args.read_cache
-    # specify data properties for caching
+
+    # ------ Specify data properties for caching------
     if args.features is None:
         if args.assembly != "":
             features_path = os.path.join(args.assembly, "features.tsv")
@@ -418,11 +436,11 @@ def main():
     else:
         features_path = os.path.join(args.assembly, args.features)
 
-    # create assembly object
+    # ------ create assembly object ------
     dataset = AssemblyDataset(
         name=args.outname,
         logger=logger,
-        data_dir=args.assembly, #every file is appended to this this
+        data_dir=args.assembly,  # every file is appended to this this
         fastafile=args.assembly_name,
         graphfile=args.graph_file,
         depthfile=args.depth,
@@ -441,7 +459,7 @@ def main():
         logger.info("Cache not found on {}".format(args.outdir))
         dataset.read_assembly()
         logger.info("")
-    
+
     if args.markers.startswith("gtdb"):
         dataset.read_gtdbtk_files()
     elif args.markers != "" and os.path.exists(os.path.join(args.assembly, args.markers)):
@@ -450,7 +468,8 @@ def main():
         logger.info(f"Not using SCG file: {args.markers} (not found)")
         args.markers = None
 
-    # load precomputed contigs with same SCGs (diff genomes)
+    #  ----- Load precomputed contigs with same SCGs (diff genomes) ---------
+
     if os.path.exists(f"{dataset.cache_dir}/all_different.npy"):
         dataset.neg_pairs_idx = np.load(f"{dataset.cache_dir}/all_different.npy")
     elif args.markers is not None:
@@ -459,7 +478,7 @@ def main():
     else:
         dataset.neg_pairs_idx = np.array([])
         args.scg_alpha = 0
-    
+
     if os.path.exists(os.path.join(args.assembly, "assembly_info.txt")):
         logger.info("Reading assembly info file")
         dataset.read_assembly_info()
@@ -472,12 +491,14 @@ def main():
     # reload labels from file anyway
     if args.labels is not None:
         dataset.read_labels()
-    
+
     if args.labelgraph:
         dataset.generate_edges_based_on_labels()
         dataset.calculate_homophily()
-    
+
     dataset.print_stats()
+
+    # ---- Setting target metric  -----
 
     target_metric = "f1"
     if args.markers is not None:
@@ -487,38 +508,56 @@ def main():
     elif args.labels is None:
         target_metric = "noeval"
 
-    # graph transformations
-    # Filter edges according to weight (could be from read overlap count or depth sim)
+    # ---- STARTING AUTOENCODER + CLUSTERING PROCESS ------
+
+    # ----- Finding the best params for the Autoencoder ------
     if (not args.rawfeatures and args.model_name != "vae") or args.reload:
         if not os.path.exists(dataset.featuresfile) or args.reload:
             from graphmb import train_ccvae
             logger.info("==============Running VAE model=====================")
             old_args = copy.deepcopy(args)
-            args.graph_alpha = 0 # do not use edges 
+            args.graph_alpha = 0  # do not use edges
             args.outname = "ccvae"
             vae_embs, _, _ = train_ccvae.run_model_ccvae(dataset, args, logger, 0,
-                                                      use_gnn=False, epochs=args.vaepretrain,
-                                                      target_metric=target_metric)
+                                                         use_gnn=False, epochs=args.vaepretrain,
+                                                         target_metric=target_metric)
             logger.info("===================================================")
-            dataset.node_embs = np.array(vae_embs)
+            dataset.node_embs = np.array(vae_embs)  # storing the best embeddings
             dataset.write_features_tsv()
             args = old_args
         else:
             dataset.read_features()
-    
-    # Prepare for running multiple runs and aggregate scores
+
+    # Prepare for running the best model with the best embeddings with multiple runs and aggregate scores
+
+    # --- 3 Cases, one for each of the possible ways of computing the embeddings :
+    #   CASE: EMBEDDINGS ARE STORED IN A FILE,
+    #   find the file and load embeddings
+
+    #   CASE : LSTM ,
+    #   run the LSTM model ( the model is developed in extent in this case)
+
+    #   CASE : ANOTHER TYPE OF MODEL (sage, gcn, gat, vae, vgae)
+    #   all of the different possible models  are represented in the last part of the if
+
     metrics_per_run = []
     amber_metrics_per_run = []
     for n in range(args.nruns):
         logger.info("RUN {}".format(n))
-        if args.embs is not None:  # no training, just run post processing
+        # CASE: LOAD EMBEDDINGS FROM FILE
+        if args.embs is not None:
+            # no training, just run post processing
             emb_file = args.embs
+            # Read the data from the file using pickle
             with open(emb_file, "rb") as embsf:
-                best_embs_dict = pickle.load(embsf)
-                best_train_embs = np.array([best_embs_dict[i] for i in dataset.node_names])
-
-        # DGL specific code - GraphMB1
+                
+                data = pickle.load(embsf)
+            # Access the data
+                best_train_embs = np.array([data[i] for i in dataset.node_names])
+            # DGL specific code - GraphMB1
+        # CASE : LSTM
         elif args.model_name == "sage_lstm":
+
             import torch
             from graphmb.dgl_dataset import DGLAssemblyDataset
             torch.set_num_threads(args.numcores)
@@ -543,20 +582,24 @@ def main():
             graph = graph.to(device)
 
             model = None
-            if args.embs is None and args.read_embs is False:
-                best_train_embs, model, last_train_embs, last_model, metrics = run_graphmb(dgl_dataset, args, device, logger)
+            if args.embs is None and args.read_embs is False:  # first clause is irrelevant
+                best_train_embs, model, last_train_embs, last_model, metrics = run_graphmb(dgl_dataset, args, device,
+                                                                                           logger)
                 emb_file = args.outdir + f"/{args.outname}_train_embs.pickle"
                 metrics = {k: len(v) for k, v in metrics.items()}
             if model is None:
                 best_train_embs = graph.ndata["feat"]
                 last_train_embs = graph.ndata["feat"]
-        
-        elif args.model_name in ("sage", "gcn", "gat", "vae", "vgae") or args.model_name.endswith("_ccvae") or \
-             args.model_name.endswith("_decode") or args.model_name.endswith("_aug"):
-            best_train_embs, metrics, contig_labels = run_model(dataset, args, logger, nrun=n, target_metric=target_metric)
-            tf.keras.backend.clear_session()
 
-        run_post_processing(
+        # CASE : OTHER TYPE OF MODEL
+        elif args.model_name in ("sage", "gcn", "gat", "vae", "vgae") or args.model_name.endswith("_ccvae") or \
+                args.model_name.endswith("_decode") or args.model_name.endswith("_aug"):
+            best_train_embs, metrics, contig_labels = run_model(dataset, args, logger, nrun=n,
+                                                                target_metric=target_metric)
+            tf.keras.backend.clear_session()
+        # ----END EMBEDDINGS ------
+        #  ---- Running the clustering algo ----
+        post_processing_metrics = run_post_processing(
             best_train_embs,
             args,
             logger,
@@ -566,18 +609,28 @@ def main():
             dataset.node_to_label,
             seed=args.seed,
         )
+
+        if  'metrics' not in locals():
+            metrics = post_processing_metrics
+
+
+        
+        #  ---- Printing the bins information -----
+
         if args.writebins:
             cluster_to_contig = {k: [] for k in set(contig_labels)}
             for contig, label in enumerate(contig_labels):
                 cluster_to_contig[label].append(dataset.node_names[contig])
             write_bins(args, dataset, cluster_to_contig, logger)
 
-        if args.labels is not None: # or "contig2bin" in args.post:
+        if args.labels is not None or "contig2bin" in args.post:
             from graphmb.amber_eval import amber_eval
             amber_metrics, bin_counts = amber_eval(
-                os.path.join(args.assembly, args.labels), args.outdir + f"/{args.outname}_{n}_best_contig2bin.tsv", ["graphmb"]
+                os.path.join(args.assembly, args.labels), args.outdir + f"/{args.outname}_{n}_best_contig2bin.tsv",
+                ["graphmb"]
             )
-        #if args.labels is not None:
+
+            # if args.labels is not None:
             hq = bin_counts["> 90% completeness"][1]
             mq = bin_counts["> 50% completeness"][1]
             amber_metrics["hq"] = hq
@@ -587,6 +640,7 @@ def main():
         args.seed += 1
         set_seed(args.seed)
 
+    # ---- Printing the metrics ------
     metrics_names = metrics_per_run[0].keys()
     for mname in metrics_names:
         values = [m.get(mname, 0) for m in metrics_per_run]
@@ -595,7 +649,7 @@ def main():
     mqs = [m["mq"] for m in metrics_per_run]
     logger.info("{:.1f} {:.1f} {:.1f} {:.1f}".format(np.mean(hqs), np.std(hqs), np.mean(mqs), np.std(mqs)))
     if args.labels is not None:
-        #amber_metrics_names = amber_metrics_per_run[0].keys()
+        # amber_metrics_names = amber_metrics_per_run[0].keys()
         amber_metrics_names = ["precision_avg_bp", "recall_avg_bp", "f1_avg_bp", "hq", "mq"]
         for mname in amber_metrics_names:
             values = [m[mname] for m in amber_metrics_per_run]
@@ -603,6 +657,7 @@ def main():
     total_time = datetime.now() - now
     print("Total run time: {}".format(total_time))
     print("Seconds per run: {:.2f}".format(total_time.total_seconds() / args.nruns))
+
 
 if __name__ == "__main__":
     main()
