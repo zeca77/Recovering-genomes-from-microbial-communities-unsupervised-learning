@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import datetime
 import os
@@ -210,8 +212,23 @@ def run_model_gnn(dataset, args, logger, nrun, target_metric):
         mlflow.log_metrics(scores[best_idx], step=step+1)
     logger.info(f">>> best epoch all contigs: {RESULT_EVERY + (best_idx*RESULT_EVERY)} : {stats} <<<")
     logger.info(f">>> best epoch: {RESULT_EVERY + (best_idx*RESULT_EVERY)} : {scores[best_idx]} <<<")
-    with open(f"{args.outdir}/{args.outname}_{nrun}_best_contig2bin.tsv", "w") as f:
-        f.write("@Version:0.9.0\n@SampleID:SAMPLEID\n@@SEQUENCEID\tBINID\n")
+
+    # Define the data structure
+    data = {
+        "version": "0.9.0",
+        "sample_id": "SAMPLEID",
+        "best_train_embs": {
+            node_names[i]: all_cluster_labels[best_idx][i] for i in range(len(all_cluster_labels[best_idx]))
+        },
+        "metrics":  scores[best_idx],
+        "contig_labels": all_cluster_labels[best_idx]
+
+    }
+
+    # Define the file path
+    file_path = f"{args.outdir}/{args.outname}_{nrun}_best_contig2bin.pkl"
+
+    with open(file_path, "w") as f:
         for i in range(len(all_cluster_labels[best_idx])):
             f.write(f"{node_names[i]}\t{all_cluster_labels[best_idx][i]}\n")
     #plot edges vs final embs

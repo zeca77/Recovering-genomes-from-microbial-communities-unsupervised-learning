@@ -82,6 +82,13 @@ def create_parser():
         default="0.1",
     )
     parser.add_argument("--nruns", type=int, help="Number of runs", default=1)
+    parser.add_argument("--chameleon_mode", type=int, help="Chameleon mode", default=1)
+    parser.add_argument("--usek", type=int, help="Whether to use K Nearest Neighbours in chameleon or not", default=0)
+    parser.add_argument("--clpairs", type=int, help="How many cannot link pairs to use", default=0)
+    parser.add_argument("--mlpairs", type=int, help="How many must link pairs to use", default=0)
+    parser.add_argument("--lambdacl", type=int, help="lambda for regulating distance between pairs with cl constraints", default=1000000)
+    parser.add_argument("--etaml", type=int, help="eta for regulating distance between pairs with ml constraints", default=1e-10)
+
     # data processing
     parser.add_argument("--mincontig", type=int, help="Minimum size of input contigs", default=1000)
     parser.add_argument("--minbin", type=int, help="Minimum size of clusters in bp", default=200000)

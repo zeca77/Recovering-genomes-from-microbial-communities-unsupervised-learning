@@ -12,21 +12,23 @@ with open(ver_path) as ver_file:
 setup(
     name="graphmb",
     version=main_ns["__version__"],
-    packages=["graphmb"],
+    packages=["graphmb","graphmb.chameleon_cluster"],
     python_requires=">=3.8",
     package_dir={"": "src"},
     setup_requires=["setuptools~=58.0", "wheel", "sphinx-rtd-theme", "twine"],
-    install_requires=[
-        "wheel",
-        "requests",
-        "networkx==2.6.2",
-        "torch==1.13.1",
-        "tensorflow==2.11.1",
-        "tqdm==4.61.2",
-        "mlflow==2.6.0",
-        "importlib_resources"
 
-    ],
+   #  install_requires=[
+   #  "wheel",
+   #    "requests",
+   #    "networkx==2.6.2",
+   #     "torch==1.13.1",
+   #    "tensorflow==2.11.1",
+   #      "tqdm==4.61.2",
+   #  "mlflow==2.6.0",
+   # "importlib_resources"
+   #
+   #    ],
+
     entry_points={
         "console_scripts": ["graphmb=graphmb.main:main"],
     },

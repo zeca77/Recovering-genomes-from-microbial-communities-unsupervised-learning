@@ -336,6 +336,7 @@ def compute_clusters_and_stats(
     contig_genes = dataset.contig_markers
     node_to_gt_idx_label = dataset.node_to_label
     gt_idx_label_to_node = dataset.label_to_node
+
     cluster_to_contig, contig_to_bin, labels, cluster_centroids = run_clustering(X, node_names,
                                                                                  clustering, cuda, k=k)
    
