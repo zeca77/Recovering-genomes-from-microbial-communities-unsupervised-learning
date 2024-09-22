@@ -1,0 +1,184 @@
+starting now seed 77
+graphmb_checkm2
+latest: Pulling from zeca77/graphmb_checkm2
+96d54c3075c9: Already exists
+784f5ac03608: Already exists
+9ecba0f44e37: Already exists
+5a50897adb41: Already exists
+5f412bd2f1fc: Already exists
+109a48468c4c: Already exists
+7c7262c9634f: Already exists
+115273afe479: Already exists
+179b90fac1fd: Already exists
+48e812d52855: Already exists
+a6fb42cd5e49: Already exists
+bab5e42b0909: Already exists
+06e34aa76ea8: Already exists
+7035bb689325: Already exists
+3ee707bb364f: Already exists
+fbc4049598f0: Already exists
+575d691a6411: Already exists
+d9efee769c1d: Already exists
+0030de96ff17: Already exists
+4f4fb700ef54: Already exists
+b233a598a316: Already exists
+031fb2deb1ca: Already exists
+96c7730bc708: Already exists
+f3128419124d: Pulling fs layer
+2d7dbdb39b7b: Pulling fs layer
+2d7dbdb39b7b: Verifying Checksum
+2d7dbdb39b7b: Download complete
+f3128419124d: Verifying Checksum
+f3128419124d: Download complete
+f3128419124d: Pull complete
+2d7dbdb39b7b: Pull complete
+Digest: sha256:b2fe97b65938a5b8543f5854e7a0a4a041ff4136a28d8b734f0e7e8668b603a5
+Status: Downloaded newer image for zeca77/graphmb_checkm2:latest
+docker.io/zeca77/graphmb_checkm2:latest
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 11.3.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+vamb
+vamb
+logging to results/strong100/bins/graphmb/20240919-173429graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 4
+setting tf seed
+Cache not found on results/strong100/bins/graphmb
+processing sequences data/aale/assembly.fasta
+read 45843 seqs
+processing GFA file (edge nodes) data/aale/assembly_graph.gfa
+skipped contigs 1107 < 1000
+read 20275, edges
+reading depths
+reading labels
+Saved cache to results/strong100/bins/graphmb
+
+Number of diff cluster pairs: 2474638
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+setting tf seed
+deleted 56 edges with same SCGs
+**** Num of edges: 65409
+logging to mlflow
+******* Running model: gcn **********
+***** using edge weights: True ******
+***** using disconnected: True ******
+***** concat features: True *****
+***** cluster markers only: False *****
+***** threshold adj matrix: False *****
+***** self edges only: False *****
+***** Using raw kmer+abund features: False
+***** SCG neg pairs: (2474638, 2)
+***** input features dimension: 64
+***** Nodes used for clustering: 45843
+>>> Pre train stats: {'precision': 1.0, 'recall': 0.01721091551600026, 'f1': 0.03383942357179619, 'ari': 0, 'hq': 45, 'mq': 182, 'n_clusters': 20072, 'unresolved_mags': 283, 'hq_comp': 95.96029258098224, 'hq_cont': 1.1894810170672239, 'unresolved_contigs': 44671, 'unresolved_contigs_with_scgs': 7273}
+*** Model input dim 64, GNN input dim 64
+*** output clustering dim 32
+>>> best epoch all contigs: 40 : {'precision': 1.0, 'recall': 0.0947363828719761, 'f1': 0.17307615669708684, 'ari': 0, 'hq': 39, 'mq': 153, 'n_clusters': 14127, 'unresolved_mags': 289, 'hq_comp': 96.42070573105055, 'hq_cont': 1.1032071376898962, 'unresolved_contigs': 44605, 'unresolved_contigs_with_scgs': 7324, 'epoch': 499} <<<
+>>> best epoch: 40 : {'precision': 1.0, 'recall': 0.0947363828719761, 'f1': 0.17307615669708684, 'ari': 0, 'hq': 39, 'mq': 153, 'n_clusters': 14127, 'unresolved_mags': 289, 'hq_comp': 96.42070573105055, 'hq_cont': 1.1032071376898962, 'unresolved_contigs': 44605, 'unresolved_contigs_with_scgs': 7324, 'epoch': 79} <<<
+#### clustering embs with vamb (200)
+vamb
+#### Total HQ 10 ####
+#### Total MQ 54 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+4216 clusters
+### skipped 3763 clusters while writing to file
+### wrote 453 clusters 453 >= #contig 1
+### writing best and last embs to results/strong100/bins/graphmb
+setting torch seed
+setting tf seed
+### precision: 1.000 0.000
+### recall: 0.095 0.000
+### f1: 0.173 0.000
+### ari: 0.000 0.000
+### hq: 39.000 0.000
+### mq: 153.000 0.000
+### n_clusters: 14127.000 0.000
+### unresolved_mags: 289.000 0.000
+### hq_comp: 96.421 0.000
+### hq_cont: 1.103 0.000
+### unresolved_contigs: 44605.000 0.000
+### unresolved_contigs_with_scgs: 7324.000 0.000
+### epoch: 79.000 0.000
+39.0 0.0 153.0 0.0
+Total run time: 0:41:07.893424
+Seconds per run: 2467.89
+logging to results/strong100/bins/graphmb/20240919-181538graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with vamb (600)
+vamb
+#### Total HQ 10 ####
+#### Total MQ 54 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+4216 clusters
+### skipped 3763 clusters while writing to file
+### wrote 453 clusters 453 >= #contig 1
+setting torch seed
+setting tf seed
+### hq: 10.000 0.000
+### mq: 54.000 0.000
+10.0 0.0 54.0 0.0
+Total run time: 0:00:38.268444
+Seconds per run: 38.27
+vamb
+Process done. Sleeping..... seed 0

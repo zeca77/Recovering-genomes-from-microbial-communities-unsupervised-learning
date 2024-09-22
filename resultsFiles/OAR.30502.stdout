@@ -1,0 +1,519 @@
+starting now seed 0
+latest: Pulling from zeca77/graphmb_checkm2
+Digest: sha256:b2fe97b65938a5b8543f5854e7a0a4a041ff4136a28d8b734f0e7e8668b603a5
+Status: Image is up to date for zeca77/graphmb_checkm2:latest
+docker.io/zeca77/graphmb_checkm2:latest
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 11.3.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+seed 6
+kmeans
+logging to results/strong100/bins/graphmb/20240919-172213graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Cache not found on results/strong100/bins/graphmb
+processing sequences data/aale/assembly.fasta
+read 45843 seqs
+processing GFA file (edge nodes) data/aale/assembly_graph.gfa
+skipped contigs 1107 < 1000
+read 20275, edges
+reading depths
+reading labels
+Saved cache to results/strong100/bins/graphmb
+
+Number of diff cluster pairs: 2474638
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+setting tf seed
+deleted 56 edges with same SCGs
+**** Num of edges: 65409
+logging to mlflow
+******* Running model: gcn **********
+***** using edge weights: True ******
+***** using disconnected: True ******
+***** concat features: True *****
+***** cluster markers only: False *****
+***** threshold adj matrix: False *****
+***** self edges only: False *****
+***** Using raw kmer+abund features: False
+***** SCG neg pairs: (2474638, 2)
+***** input features dimension: 64
+***** Nodes used for clustering: 45843
+>>> Pre train stats: {'precision': 1.0, 'recall': 0.017625373557576946, 'f1': 0.03464020063878588, 'ari': 0, 'hq': 0, 'mq': 17, 'n_clusters': 200, 'unresolved_mags': 327, 'hq_comp': nan, 'hq_cont': nan, 'unresolved_contigs': 45843, 'unresolved_contigs_with_scgs': 7729}
+*** Model input dim 64, GNN input dim 64
+*** output clustering dim 32
+>>> best epoch all contigs: 380 : {'precision': 1.0, 'recall': 0.011757520232096504, 'f1': 0.023241774826441294, 'ari': 0, 'hq': 3, 'mq': 16, 'n_clusters': 200, 'unresolved_mags': 324, 'hq_comp': 96.10762800417973, 'hq_cont': 2.0114942528735633, 'unresolved_contigs': 45413, 'unresolved_contigs_with_scgs': 7694, 'epoch': 499} <<<
+>>> best epoch: 380 : {'precision': 1.0, 'recall': 0.011757520232096504, 'f1': 0.023241774826441294, 'ari': 0, 'hq': 3, 'mq': 16, 'n_clusters': 200, 'unresolved_mags': 324, 'hq_comp': 96.10762800417973, 'hq_cont': 2.0114942528735633, 'unresolved_contigs': 45413, 'unresolved_contigs_with_scgs': 7694, 'epoch': 419} <<<
+#### clustering embs with kmeans (200)
+kmeans
+#### Total HQ 2 ####
+#### Total MQ 8 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+200 clusters
+### skipped 1 clusters while writing to file
+### wrote 199 clusters 199 >= #contig 1
+### writing best and last embs to results/strong100/bins/graphmb
+setting tf seed
+### precision: 1.000 0.000
+### recall: 0.012 0.000
+### f1: 0.023 0.000
+### ari: 0.000 0.000
+### hq: 3.000 0.000
+### mq: 16.000 0.000
+### n_clusters: 200.000 0.000
+### unresolved_mags: 324.000 0.000
+### hq_comp: 96.108 0.000
+### hq_cont: 2.011 0.000
+### unresolved_contigs: 45413.000 0.000
+### unresolved_contigs_with_scgs: 7694.000 0.000
+### epoch: 419.000 0.000
+3.0 0.0 16.0 0.0
+Total run time: 2:00:55.182106
+Seconds per run: 7255.18
+logging to results/strong100/bins/graphmb/20240919-192309graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with kmeans (100)
+kmeans
+#### Total HQ 0 ####
+#### Total MQ 2 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+100 clusters
+### skipped 1 clusters while writing to file
+### wrote 99 clusters 99 >= #contig 1
+setting tf seed
+### hq: 0.000 0.000
+### mq: 2.000 0.000
+0.0 0.0 2.0 0.0
+Total run time: 0:02:31.291244
+Seconds per run: 151.29
+logging to results/strong100/bins/graphmb/20240919-192542graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with kmeans (600)
+kmeans
+#### Total HQ 2 ####
+#### Total MQ 52 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+600 clusters
+### skipped 30 clusters while writing to file
+### wrote 570 clusters 570 >= #contig 1
+setting tf seed
+### hq: 2.000 0.000
+### mq: 52.000 0.000
+2.0 0.0 52.0 0.0
+Total run time: 0:04:59.480055
+Seconds per run: 299.48
+gmm
+logging to results/strong100/bins/graphmb/20240919-193043graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with gmm (200)
+gmm
+Initialization 0
+  Iteration 1	 time lapse 27.93768s	 ll change inf
+  Iteration 2	 time lapse 8.07798s	 ll change 3.79821
+  Iteration 3	 time lapse 7.96373s	 ll change 1.87509
+  Iteration 4	 time lapse 7.95625s	 ll change 1.25216
+  Iteration 5	 time lapse 7.85085s	 ll change 0.66640
+  Iteration 6	 time lapse 7.84229s	 ll change 0.39076
+  Iteration 7	 time lapse 7.91319s	 ll change 0.21125
+  Iteration 8	 time lapse 7.92252s	 ll change 0.14872
+  Iteration 9	 time lapse 7.98486s	 ll change 0.11228
+  Iteration 10	 time lapse 7.98361s	 ll change 0.08327
+  Iteration 11	 time lapse 8.00751s	 ll change 0.09629
+  Iteration 12	 time lapse 7.80276s	 ll change 0.07594
+  Iteration 13	 time lapse 8.10629s	 ll change 0.07871
+  Iteration 14	 time lapse 8.03538s	 ll change 0.06746
+  Iteration 15	 time lapse 8.03516s	 ll change 0.04933
+  Iteration 16	 time lapse 7.91204s	 ll change 0.04035
+  Iteration 17	 time lapse 7.95610s	 ll change 0.04411
+  Iteration 18	 time lapse 7.97384s	 ll change 0.03664
+  Iteration 19	 time lapse 7.93460s	 ll change 0.03896
+  Iteration 20	 time lapse 7.98593s	 ll change 0.03013
+  Iteration 21	 time lapse 8.03253s	 ll change 0.02485
+  Iteration 22	 time lapse 7.96616s	 ll change 0.01840
+  Iteration 23	 time lapse 7.90457s	 ll change 0.01631
+  Iteration 24	 time lapse 7.94294s	 ll change 0.01378
+  Iteration 25	 time lapse 7.95257s	 ll change 0.01348
+  Iteration 26	 time lapse 7.98907s	 ll change 0.01296
+  Iteration 27	 time lapse 7.91487s	 ll change 0.01363
+  Iteration 28	 time lapse 8.03802s	 ll change 0.01389
+  Iteration 29	 time lapse 8.12911s	 ll change 0.01298
+  Iteration 30	 time lapse 8.07908s	 ll change 0.01129
+  Iteration 31	 time lapse 8.05366s	 ll change 0.01191
+  Iteration 32	 time lapse 7.94323s	 ll change 0.01296
+  Iteration 33	 time lapse 7.93515s	 ll change 0.01506
+  Iteration 34	 time lapse 8.00088s	 ll change 0.01512
+  Iteration 35	 time lapse 8.05446s	 ll change 0.01083
+  Iteration 36	 time lapse 8.04166s	 ll change 0.01829
+  Iteration 37	 time lapse 7.98746s	 ll change 0.01499
+  Iteration 38	 time lapse 7.95455s	 ll change 0.01041
+  Iteration 39	 time lapse 7.66268s	 ll change 0.00958
+  Iteration 40	 time lapse 8.14410s	 ll change 0.00872
+  Iteration 41	 time lapse 8.01992s	 ll change 0.00756
+  Iteration 42	 time lapse 8.02262s	 ll change 0.00398
+  Iteration 43	 time lapse 8.19599s	 ll change 0.00633
+  Iteration 44	 time lapse 8.07683s	 ll change 0.00585
+  Iteration 45	 time lapse 7.98378s	 ll change 0.00568
+  Iteration 46	 time lapse 7.98966s	 ll change 0.00378
+  Iteration 47	 time lapse 7.92072s	 ll change 0.00324
+  Iteration 48	 time lapse 7.94326s	 ll change 0.00499
+  Iteration 49	 time lapse 7.93272s	 ll change 0.00409
+  Iteration 50	 time lapse 7.93952s	 ll change 0.00428
+  Iteration 51	 time lapse 7.93966s	 ll change 0.00399
+  Iteration 52	 time lapse 7.86102s	 ll change 0.00314
+  Iteration 53	 time lapse 7.94858s	 ll change 0.00368
+  Iteration 54	 time lapse 7.95230s	 ll change 0.01131
+  Iteration 55	 time lapse 8.07802s	 ll change 0.00809
+  Iteration 56	 time lapse 8.00355s	 ll change 0.00971
+  Iteration 57	 time lapse 8.08378s	 ll change 0.00763
+  Iteration 58	 time lapse 8.00168s	 ll change 0.01480
+  Iteration 59	 time lapse 7.96331s	 ll change 0.00498
+  Iteration 60	 time lapse 7.83983s	 ll change 0.00646
+  Iteration 61	 time lapse 7.93275s	 ll change 0.00497
+  Iteration 62	 time lapse 7.86947s	 ll change 0.00449
+  Iteration 63	 time lapse 7.92753s	 ll change 0.00353
+  Iteration 64	 time lapse 8.07435s	 ll change 0.00360
+  Iteration 65	 time lapse 7.91030s	 ll change 0.00110
+  Iteration 66	 time lapse 7.91584s	 ll change 0.00127
+  Iteration 67	 time lapse 8.04383s	 ll change 0.00250
+  Iteration 68	 time lapse 8.13806s	 ll change 0.00190
+  Iteration 69	 time lapse 8.08167s	 ll change 0.00220
+  Iteration 70	 time lapse 8.00991s	 ll change 0.00139
+  Iteration 71	 time lapse 7.95495s	 ll change 0.00158
+  Iteration 72	 time lapse 8.09368s	 ll change 0.00107
+  Iteration 73	 time lapse 8.10852s	 ll change 0.00360
+  Iteration 74	 time lapse 8.04473s	 ll change 0.00589
+  Iteration 75	 time lapse 7.97163s	 ll change 0.00301
+  Iteration 76	 time lapse 8.01331s	 ll change 0.00315
+  Iteration 77	 time lapse 8.03174s	 ll change 0.00302
+  Iteration 78	 time lapse 7.90521s	 ll change 0.00233
+  Iteration 79	 time lapse 7.94873s	 ll change 0.00299
+  Iteration 80	 time lapse 7.90087s	 ll change 0.00243
+  Iteration 81	 time lapse 7.87442s	 ll change 0.00360
+  Iteration 82	 time lapse 7.98906s	 ll change 0.00264
+  Iteration 83	 time lapse 7.90193s	 ll change 0.00156
+  Iteration 84	 time lapse 7.89335s	 ll change 0.00039
+Initialization converged: True	 time lapse 690.14193s	 ll 47.05735
+#### Total HQ 2 ####
+#### Total MQ 5 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+200 clusters
+### skipped 6 clusters while writing to file
+### wrote 194 clusters 194 >= #contig 1
+setting tf seed
+### hq: 2.000 0.000
+### mq: 5.000 0.000
+2.0 0.0 5.0 0.0
+Total run time: 0:12:00.822795
+Seconds per run: 720.82
+logging to results/strong100/bins/graphmb/20240919-194245graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with gmm (400)
+gmm
+Initialization 0
+  Iteration 1	 time lapse 39.59556s	 ll change inf
+  Iteration 2	 time lapse 15.85260s	 ll change 2.55754
+  Iteration 3	 time lapse 15.79604s	 ll change 1.74171
+  Iteration 4	 time lapse 16.03936s	 ll change 1.13569
+  Iteration 5	 time lapse 16.21519s	 ll change 0.56298
+  Iteration 6	 time lapse 16.01251s	 ll change 0.30974
+  Iteration 7	 time lapse 15.96590s	 ll change 0.19697
+  Iteration 8	 time lapse 15.63902s	 ll change 0.13393
+  Iteration 9	 time lapse 15.94346s	 ll change 0.12190
+  Iteration 10	 time lapse 15.59909s	 ll change 0.09592
+  Iteration 11	 time lapse 16.12387s	 ll change 0.09714
+  Iteration 12	 time lapse 16.09019s	 ll change 0.05332
+  Iteration 13	 time lapse 15.73250s	 ll change 0.04130
+  Iteration 14	 time lapse 15.57652s	 ll change 0.03491
+  Iteration 15	 time lapse 15.66881s	 ll change 0.02798
+  Iteration 16	 time lapse 16.14395s	 ll change 0.02079
+  Iteration 17	 time lapse 16.39923s	 ll change 0.01414
+  Iteration 18	 time lapse 15.78210s	 ll change 0.01099
+  Iteration 19	 time lapse 15.70560s	 ll change 0.01217
+  Iteration 20	 time lapse 15.78981s	 ll change 0.00942
+  Iteration 21	 time lapse 16.00598s	 ll change 0.00784
+  Iteration 22	 time lapse 15.56707s	 ll change 0.00622
+  Iteration 23	 time lapse 15.68223s	 ll change 0.00964
+  Iteration 24	 time lapse 15.45349s	 ll change 0.01988
+  Iteration 25	 time lapse 15.86909s	 ll change 0.00668
+  Iteration 26	 time lapse 16.20546s	 ll change 0.00706
+  Iteration 27	 time lapse 15.74501s	 ll change 0.00763
+  Iteration 28	 time lapse 15.68569s	 ll change 0.00614
+  Iteration 29	 time lapse 15.64411s	 ll change 0.00772
+  Iteration 30	 time lapse 15.62668s	 ll change 0.00544
+  Iteration 31	 time lapse 16.25019s	 ll change 0.00518
+  Iteration 32	 time lapse 16.14284s	 ll change 0.00665
+  Iteration 33	 time lapse 15.81258s	 ll change 0.00717
+  Iteration 34	 time lapse 15.94866s	 ll change 0.00522
+  Iteration 35	 time lapse 15.76692s	 ll change 0.00317
+  Iteration 36	 time lapse 15.83697s	 ll change 0.00431
+  Iteration 37	 time lapse 15.78599s	 ll change 0.00561
+  Iteration 38	 time lapse 15.56328s	 ll change 0.00314
+  Iteration 39	 time lapse 15.74024s	 ll change 0.00193
+  Iteration 40	 time lapse 15.29154s	 ll change 0.00312
+  Iteration 41	 time lapse 15.36036s	 ll change 0.00199
+  Iteration 42	 time lapse 15.42770s	 ll change 0.00227
+  Iteration 43	 time lapse 15.83860s	 ll change 0.00241
+  Iteration 44	 time lapse 15.52424s	 ll change 0.00232
+  Iteration 45	 time lapse 15.89229s	 ll change 0.00088
+Initialization converged: True	 time lapse 735.33856s	 ll 52.14341
+#### Total HQ 4 ####
+#### Total MQ 32 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+400 clusters
+### skipped 14 clusters while writing to file
+### wrote 386 clusters 386 >= #contig 1
+setting tf seed
+### hq: 4.000 0.000
+### mq: 32.000 0.000
+4.0 0.0 32.0 0.0
+Total run time: 0:12:52.632172
+Seconds per run: 772.63
+logging to results/strong100/bins/graphmb/20240919-195538graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with gmm (600)
+gmm
+Initialization 0
+  Iteration 1	 time lapse 66.74652s	 ll change inf
+  Iteration 2	 time lapse 24.19417s	 ll change 1.80710
+  Iteration 3	 time lapse 23.77943s	 ll change 1.20355
+  Iteration 4	 time lapse 23.61176s	 ll change 0.78397
+  Iteration 5	 time lapse 23.68137s	 ll change 0.47862
+  Iteration 6	 time lapse 24.08960s	 ll change 0.32115
+  Iteration 7	 time lapse 23.30134s	 ll change 0.25669
+  Iteration 8	 time lapse 23.10352s	 ll change 0.16191
+  Iteration 9	 time lapse 23.18547s	 ll change 0.10500
+  Iteration 10	 time lapse 23.84954s	 ll change 0.07721
+  Iteration 11	 time lapse 23.78366s	 ll change 0.07352
+  Iteration 12	 time lapse 23.63466s	 ll change 0.04983
+  Iteration 13	 time lapse 23.44571s	 ll change 0.03838
+  Iteration 14	 time lapse 23.53800s	 ll change 0.04776
+  Iteration 15	 time lapse 23.66852s	 ll change 0.04535
+  Iteration 16	 time lapse 23.56356s	 ll change 0.05139
+  Iteration 17	 time lapse 23.73593s	 ll change 0.02237
+  Iteration 18	 time lapse 23.62947s	 ll change 0.01976
+  Iteration 19	 time lapse 23.84684s	 ll change 0.02113
+  Iteration 20	 time lapse 23.70753s	 ll change 0.01204
+  Iteration 21	 time lapse 23.49868s	 ll change 0.01428
+  Iteration 22	 time lapse 23.81730s	 ll change 0.01762
+  Iteration 23	 time lapse 23.74469s	 ll change 0.00929
+  Iteration 24	 time lapse 23.68085s	 ll change 0.00711
+  Iteration 25	 time lapse 23.49976s	 ll change 0.01193
+  Iteration 26	 time lapse 24.05189s	 ll change 0.00703
+  Iteration 27	 time lapse 23.48976s	 ll change 0.00497
+  Iteration 28	 time lapse 23.45486s	 ll change 0.00376
+  Iteration 29	 time lapse 23.59777s	 ll change 0.00559
+  Iteration 30	 time lapse 23.91098s	 ll change 0.00487
+  Iteration 31	 time lapse 23.43916s	 ll change 0.00354
+  Iteration 32	 time lapse 23.87979s	 ll change 0.00600
+  Iteration 33	 time lapse 23.72198s	 ll change 0.00918
+  Iteration 34	 time lapse 23.44785s	 ll change 0.00342
+  Iteration 35	 time lapse 23.55700s	 ll change 0.00394
+  Iteration 36	 time lapse 23.58396s	 ll change 0.00564
+  Iteration 37	 time lapse 23.56541s	 ll change 0.00331
+  Iteration 38	 time lapse 23.76182s	 ll change 0.00175
+  Iteration 39	 time lapse 23.60665s	 ll change 0.00196
+  Iteration 40	 time lapse 23.74318s	 ll change 0.00311
+  Iteration 41	 time lapse 23.30228s	 ll change 0.00331
+  Iteration 42	 time lapse 23.96009s	 ll change 0.00207
+  Iteration 43	 time lapse 24.17142s	 ll change 0.00144
+  Iteration 44	 time lapse 23.26835s	 ll change 0.00089
+Initialization converged: True	 time lapse 1083.85220s	 ll 56.60956
+#### Total HQ 3 ####
+#### Total MQ 36 ####
+### writing bins to results/strong100/bins/graphmb/graphmb_bins/
+600 clusters
+### skipped 29 clusters while writing to file
+### wrote 571 clusters 571 >= #contig 1
+setting tf seed
+### hq: 3.000 0.000
+### mq: 36.000 0.000
+3.0 0.0 36.0 0.0
+Total run time: 0:18:48.793646
+Seconds per run: 1128.79
+graphconstrained
+logging to results/strong100/bins/graphmb/20240919-201429graphmb_output.log
+Running GraphMB 0.2.6
+using cuda: False
+setting seed to 6
+setting tf seed
+Reading cache from
+==============================
+DATASET STATS:
+number of sequences: 45843
+assembly length: 1.906 Gb
+assembly N50: 0.079 Mb
+assembly average length (Mb): 0.042 max: 4.08 min: 0.001
+coverage samples: [0.02729503 0.15427164 0.81843333 0.        ]
+Graph file found and read
+graph edges: 20275
+contig paths: 45433
+total ref markers sets: 58
+total ref markers: 104
+contigs with one or more markers: 7729/45843
+max SCGs on one contig: 103, average(excluding 0): 4.536
+candidate k0s [363, 364, 365, 366, 368, 369, 372, 373, 374, 375, 376, 378, 379, 380, 381, 382, 387, 389]
+SCG contig count min: 179 contigs
+==============================
+loading features from data/aale/features.tsv
+loaded 45814 features/ 45843 nodes from tsv
+RUN 0
+#### clustering embs with graphconstrained (200)
+graphconstrained
+Building kNN graph (k = 100)...
+Begin clustering...
