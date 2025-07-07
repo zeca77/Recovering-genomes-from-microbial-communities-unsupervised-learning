@@ -1,6 +1,6 @@
 # Recovering genomes from microbial communities with unsupervised learning 
 
-This repository contains the code developed as part of a Master’s thesis titled **“Recovering genomes from microbial communities with unsupervised learning”**, completed at **FCT-NOVA**.
+This repository contains the code developed as part of my Master’s thesis titled **“Recovering genomes from microbial communities with unsupervised learning”**, completed at **FCT-NOVA**.
 
 The original implementation is based on **GraphMB**, a cutting-edge metagenomic binning tool designed to recover microbial genomes from long-read assemblies by leveraging assembly graphs and graph neural networks. GraphMB uses graph embeddings generated from the assembly graph to cluster contigs into genome bins.
 
